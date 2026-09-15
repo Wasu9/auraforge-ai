@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraForge AI — Advanced Free AI Studio</title>
+  <meta name="description" content="Advanced free AI Image Generator with reference images, multi-image & latest models." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://js.puter.com/v2/"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="logo">
+        <div class="logo-mark">✦</div>
+        <div class="logo-text">
+          <span class="logo-name">AuraForge</span>
+          <span class="logo-tag">AI Studio</span>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#generate" class="nav-link">Generate</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+        <a href="#swap" class="nav-link">Character Swap</a>
+        <a href="#tools" class="nav-link">Local Tools</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+      <div class="badge">Free • Reference Images • Multi-Image • Latest Models</div>
+      <h1>Advanced AI Image Studio<br><span class="gradient-text">with Reference Support</span></h1>
+      <p class="hero-desc">Text-to-image, image-to-image, multi-reference & multi-result generation. No API key needed from you.</p>
+    </div>
+  </header>
+
+  <section id="generate" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>AI Image Generator</h2>
+        <p>Prompt + optional reference images. Supports img2img and multi-image merge style prompts.</p>
+      </div>
+
+      <div class="generator-layout">
+        <div class="panel controls-panel">
+          <div class="panel-header">
+            <h3>Prompt</h3>
+            <button class="btn-ghost" id="surpriseBtn">🎲 Surprise</button>
+          </div>
+          <textarea id="prompt" rows="4" placeholder="Describe the image... For reference images: 'transform this into cyberpunk style' or 'merge these characters into one scene'"></textarea>
+
+          <!-- Reference Images -->
+          <div class="control-group">
+            <label>Reference Images <span class="optional">(optional – for img2img / merge)</span></label>
+            <div class="ref-upload-area" id="refUploadArea">
+              <input type="file" id="refInput" accept="image/*" multiple hidden />
+              <div class="ref-drop" id="refDrop">
+                <span>📷 Drop images or click to upload</span>
+                <small>Up to 4 reference images</small>
+              </div>
+              <div class="ref-previews" id="refPreviews"></div>
+            </div>
+          </div>
+
+          <div class="control-grid">
+            <div class="control-group">
+              <label>Model</label>
+              <select id="model">
+                <option value="openai/gpt-image-2">GPT Image 2 (Best quality)</option>
+                <option value="google/gemini-3-pro-image-preview">Gemini 3 Pro Image</option>
+                <option value="google/gemini-3.1-flash-image-preview">Gemini Flash Image</option>
+                <option value="black-forest-labs/flux-1.1-pro">FLUX 1.1 Pro</option>
+                <option value="black-forest-labs/flux-2-klein-9b-base">FLUX 2 Klein</option>
+                <option value="openai/gpt-image-1.5">GPT Image 1.5</option>
+                <option value="x-ai/grok-imagine-image">Grok Imagine</option>
+                <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Aspect Ratio</label>
+              <select id="aspect">
+                <option value="1:1">1:1 Square</option>
+                <option value="16:9">16:9 Landscape</option>
+                <option value="9:16">9:16 Portrait</option>
+                <option value="4:3">4:3</option>
+                <option value="3:4">3:4</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Number of Results</label>
+            <div class="count-selector" id="countSelector">
+              <button type="button" data-count="1" class="active">1</button>
+              <button type="button" data-count="2">2</button>
+              <button type="button" data-count="3">3</button>
+              <button type="button" data-count="4">4</button>
+            </div>
+          </div>
+
+          <div class="prompt-examples">
+            <span class="examples-label">Quick styles:</span>
+            <button type="button" class="chip" data-prompt="cinematic lighting, highly detailed, 8k, photorealistic">Cinematic</button>
+            <button type="button" class="chip" data-prompt="anime style, vibrant colors">Anime</button>
+            <button type="button" class="chip" data-prompt="oil painting style, rich textures">Oil Paint</button>
+            <button type="button" class="chip" data-prompt="cyberpunk, neon lights">Cyberpunk</button>
+            <button type="button" class="chip" data-prompt="merge the subjects into one coherent scene">Merge Style</button>
+          </div>
+
+          <button id="generateBtn" class="btn-primary generate-btn">
+            <span class="btn-text">Generate</span>
+            <span class="btn-loader hidden">Generating...</span>
+          </button>
+          <div id="status" class="status-msg"></div>
+        </div>
+
+        <div class="panel results-panel">
+          <div class="panel-header">
+            <h3>Results</h3>
+            <button type="button" class="btn-ghost" id="clearResults">Clear</button>
+          </div>
+          <div id="resultsGrid" class="results-grid">
+            <div class="empty-state">
+              <div class="empty-icon">✨</div>
+              <p>Generated images appear here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery" class="section alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>Your Gallery</h2>
+        <p>Saved in browser localStorage (max 30 images).</p>
+      </div>
+      <div id="galleryGrid" class="gallery-grid">
+        <div class="empty-state small"><p>No images yet</p></div>
+      </div>
+      <div class="gallery-actions">
+        <button type="button" class="btn-secondary" id="clearGallery">Clear Gallery</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="swap" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Character Swap</h2>
+        <p>Face swap in browser or full character swap locally.</p>
+      </div>
+      <div class="cards-grid">
+        <div class="feature-card">
+          <div class="card-icon">🎭</div>
+          <h3>Face Swap (Browser)</h3>
+          <p>Quick face replacement. Good for short clips.</p>
+          <ul>
+            <li>No install</li>
+            <li>Medium quality</li>
+          </ul>
+          <a href="https://newface.live" target="_blank" rel="noopener" class="btn-secondary">Open Tool →</a>
+        </div>
+        <div class="feature-card featured">
+          <div class="card-badge">Best Quality</div>
+          <div class="card-icon">🎬</div>
+          <h3>Full Character Swap</h3>
+          <p>Replace whole character + keep motion. Needs local GPU.</p>
+          <ul>
+            <li>High quality</li>
+            <li>Free open-source</li>
+          </ul>
+          <a href="#tools" class="btn-primary">Local Setup →</a>
+        </div>
+        <div class="feature-card">
+          <div class="card-icon">⚡</div>
+          <h3>Tips</h3>
+          <ul>
+            <li>Clear front-facing photo</li>
+            <li>Short videos first</li>
+            <li>Match lighting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tools" class="section alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>Local High-Quality Tools</h2>
+      </div>
+      <div class="tools-list">
+        <div class="tool-item">
+          <div class="tool-info">
+            <h3>FaceFusion</h3>
+            <p>Best free face swap for video.</p>
+            <div class="tags"><span class="tag">Face Swap</span><span class="tag">Video</span></div>
+          </div>
+          <a href="https://github.com/facefusion/facefusion" target="_blank" rel="noopener" class="btn-secondary">GitHub →</a>
+        </div>
+        <div class="tool-item">
+          <div class="tool-info">
+            <h3>Viggle-Animate / Wan Animate</h3>
+            <p>Full character replacement with motion preserve.</p>
+            <div class="tags"><span class="tag">Character</span><span class="tag">Motion</span></div>
+          </div>
+          <a href="https://huggingface.co/Viggle/Viggle-Animate" target="_blank" rel="noopener" class="btn-secondary">HF →</a>
+        </div>
+        <div class="tool-item">
+          <div class="tool-info">
+            <h3>Pinokio</h3>
+            <p>Easy launcher for many local AI models.</p>
+            <div class="tags"><span class="tag">Easy Setup</span></div>
+          </div>
+          <a href="https://pinokio.co" target="_blank" rel="noopener" class="btn-secondary">Pinokio →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand"><div class="logo-mark small">✦</div><span>AuraForge AI</span></div>
+        <p>Free tools via Puter.js. Use face/character tools responsibly.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div id="lightbox" class="lightbox hidden">
+    <button class="lightbox-close" id="lightboxClose">×</button>
+    <img id="lightboxImg" src="" alt="Full size" />
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
