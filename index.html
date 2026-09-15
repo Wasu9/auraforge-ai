@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraForge AI — Image + Video Studio</title>
+  <meta name="description" content="Free AI Image & Video Generator with reference support. No API key needed." />
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://js.puter.com/v2/"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="logo">
+        <div class="logo-mark">✦</div>
+        <div class="logo-text">
+          <span class="logo-name">AuraForge</span>
+          <span class="logo-tag">AI Studio</span>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#generate" class="nav-link">Image</a>
+        <a href="#video" class="nav-link">Video</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+        <a href="#swap" class="nav-link">Character Swap</a>
+        <a href="#tools" class="nav-link">Local Tools</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+      <div class="badge">Free • Image + Video • Reference Support</div>
+      <h1>AI Image & Video Studio<br><span class="gradient-text">powered by Puter.js</span></h1>
+      <p class="hero-desc">Generate images and short videos. Text-to-image, img2img, text-to-video & image-to-video.</p>
+    </div>
+  </header>
+
+  <!-- IMAGE SECTION -->
+  <section id="generate" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>AI Image Generator</h2>
+        <p>Text-to-image + reference images (img2img / multi-ref).</p>
+      </div>
+      <div class="generator-layout">
+        <div class="panel controls-panel">
+          <div class="panel-header">
+            <h3>Prompt</h3>
+            <button class="btn-ghost" id="surpriseBtn">🎲 Surprise</button>
+          </div>
+          <textarea id="prompt" rows="3" placeholder="Describe the image..."></textarea>
+
+          <div class="control-group">
+            <label>Reference Images <span class="optional">(optional)</span></label>
+            <div class="ref-upload-area">
+              <input type="file" id="refInput" accept="image/*" multiple hidden />
+              <div class="ref-drop" id="refDrop">
+                <span>📷 Drop or click to upload</span>
+                <small>Up to 4 images</small>
+              </div>
+              <div class="ref-previews" id="refPreviews"></div>
+            </div>
+          </div>
+
+          <div class="control-grid">
+            <div class="control-group">
+              <label>Model</label>
+              <select id="model">
+                <option value="openai/gpt-image-2">GPT Image 2</option>
+                <option value="google/gemini-3-pro-image-preview">Gemini 3 Pro Image</option>
+                <option value="google/gemini-3.1-flash-image-preview">Gemini Flash Image</option>
+                <option value="black-forest-labs/flux-1.1-pro">FLUX 1.1 Pro</option>
+                <option value="x-ai/grok-imagine-image">Grok Imagine</option>
+                <option value="openai/gpt-image-1.5">GPT Image 1.5</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Results</label>
+              <div class="count-selector" id="countSelector">
+                <button type="button" data-count="1" class="active">1</button>
+                <button type="button" data-count="2">2</button>
+                <button type="button" data-count="4">4</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="prompt-examples">
+            <button type="button" class="chip" data-prompt="cinematic lighting, highly detailed, 8k">Cinematic</button>
+            <button type="button" class="chip" data-prompt="anime style, vibrant">Anime</button>
+            <button type="button" class="chip" data-prompt="cyberpunk, neon lights">Cyberpunk</button>
+            <button type="button" class="chip" data-prompt="merge subjects into one scene">Merge</button>
+          </div>
+
+          <button id="generateBtn" class="btn-primary generate-btn">
+            <span class="btn-text">Generate Image</span>
+            <span class="btn-loader hidden">Generating...</span>
+          </button>
+          <div id="status" class="status-msg"></div>
+        </div>
+        <div class="panel results-panel">
+          <div class="panel-header"><h3>Results</h3><button type="button" class="btn-ghost" id="clearResults">Clear</button></div>
+          <div id="resultsGrid" class="results-grid">
+            <div class="empty-state"><div class="empty-icon">✨</div><p>Images appear here</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDEO SECTION -->
+  <section id="video" class="section alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>AI Video Generator</h2>
+        <p>Text-to-video & Image-to-video. Short clips (usually 4–8 seconds).</p>
+      </div>
+      <div class="generator-layout">
+        <div class="panel controls-panel">
+          <div class="panel-header"><h3>Video Prompt</h3></div>
+          <textarea id="videoPrompt" rows="3" placeholder="A fox running through a snowy forest at dusk, cinematic camera..."></textarea>
+
+          <div class="control-group">
+            <label>Reference Image <span class="optional">(for Image-to-Video)</span></label>
+            <div class="ref-upload-area">
+              <input type="file" id="videoRefInput" accept="image/*" hidden />
+              <div class="ref-drop" id="videoRefDrop">
+                <span>📷 Upload starting frame (optional)</span>
+                <small>Image will be animated</small>
+              </div>
+              <div class="ref-previews" id="videoRefPreviews"></div>
+            </div>
+          </div>
+
+          <div class="control-grid">
+            <div class="control-group">
+              <label>Model</label>
+              <select id="videoModel">
+                <option value="google/veo-3.1-lite">Veo 3.1 Lite (Fast)</option>
+                <option value="google/veo-3.1-fast">Veo 3.1 Fast</option>
+                <option value="google/veo-3.1">Veo 3.1 (Best)</option>
+                <option value="veo-3.1-lite">Veo 3.1 Lite</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Duration</label>
+              <select id="videoDuration">
+                <option value="4">4 seconds</option>
+                <option value="6">6 seconds</option>
+                <option value="8">8 seconds</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="generateVideoBtn" class="btn-primary generate-btn">
+            <span class="btn-text">Generate Video</span>
+            <span class="btn-loader hidden">Generating video...</span>
+          </button>
+          <div id="videoStatus" class="status-msg"></div>
+          <p class="note" style="margin-top:1rem;font-size:0.8rem;color:var(--muted);">
+            Video generation uses more credits and can take 30–120+ seconds. First time may show Puter consent.
+          </p>
+        </div>
+        <div class="panel results-panel">
+          <div class="panel-header"><h3>Video Result</h3></div>
+          <div id="videoResult" class="video-result">
+            <div class="empty-state"><div class="empty-icon">🎬</div><p>Generated video will appear here</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Gallery</h2>
+        <p>Saved images in browser storage.</p>
+      </div>
+      <div id="galleryGrid" class="gallery-grid">
+        <div class="empty-state small"><p>No images yet</p></div>
+      </div>
+      <div class="gallery-actions">
+        <button type="button" class="btn-secondary" id="clearGallery">Clear Gallery</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SWAP -->
+  <section id="swap" class="section alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>Character Swap</h2>
+        <p>Face swap in browser or full character swap locally.</p>
+      </div>
+      <div class="cards-grid">
+        <div class="feature-card">
+          <div class="card-icon">🎭</div>
+          <h3>Face Swap (Browser)</h3>
+          <p>Quick face replacement for short clips.</p>
+          <a href="https://newface.live" target="_blank" rel="noopener" class="btn-secondary">Open Tool →</a>
+        </div>
+        <div class="feature-card featured">
+          <div class="card-badge">Best Quality</div>
+          <div class="card-icon">🎬</div>
+          <h3>Full Character Swap</h3>
+          <p>Replace character + keep motion. Needs local GPU.</p>
+          <a href="#tools" class="btn-primary">Local Setup →</a>
+        </div>
+        <div class="feature-card">
+          <div class="card-icon">⚡</div>
+          <h3>Tips</h3>
+          <ul>
+            <li>Clear front-facing photo</li>
+            <li>Short videos first</li>
+            <li>Match lighting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section id="tools" class="section">
+    <div class="container">
+      <div class="section-header"><h2>Local High-Quality Tools</h2></div>
+      <div class="tools-list">
+        <div class="tool-item">
+          <div class="tool-info">
+            <h3>FaceFusion</h3>
+            <p>Best free face swap for video.</p>
+            <div class="tags"><span class="tag">Face Swap</span><span class="tag">Video</span></div>
+          </div>
+          <a href="https://github.com/facefusion/facefusion" target="_blank" rel="noopener" class="btn-secondary">GitHub →</a>
+        </div>
+        <div class="tool-item">
+          <div class="tool-info">
+            <h3>Viggle-Animate / Wan Animate</h3>
+            <p>Full character replacement with motion.</p>
+            <div class="tags"><span class="tag">Character</span><span class="tag">Motion</span></div>
+          </div>
+          <a href="https://huggingface.co/Viggle/Viggle-Animate" target="_blank" rel="noopener" class="btn-secondary">HF →</a>
+        </div>
+        <div class="tool-item">
+          <div class="tool-info">
+            <h3>Pinokio</h3>
+            <p>Easy launcher for local AI models.</p>
+            <div class="tags"><span class="tag">Easy Setup</span></div>
+          </div>
+          <a href="https://pinokio.co" target="_blank" rel="noopener" class="btn-secondary">Pinokio →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand"><div class="logo-mark small">✦</div><span>AuraForge AI</span></div>
+        <p>Image + Video via Puter.js. Use responsibly.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div id="lightbox" class="lightbox hidden">
+    <button class="lightbox-close" id="lightboxClose">×</button>
+    <img id="lightboxImg" src="" alt="Full size" />
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
